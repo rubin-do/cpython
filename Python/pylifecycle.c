@@ -880,6 +880,12 @@ pycore_interp_init(PyThreadState *tstate)
         return status;
     }
 
+    // The Reward Fetcher must be initialized before GC
+    status = _PyRewardFetcher_Init(interp);
+    if (_PyStatus_EXCEPTION(status)) {
+        return status;
+    }
+
     // The GC must be initialized before the first GC collection.
     status = _PyGC_Init(interp);
     if (_PyStatus_EXCEPTION(status)) {
