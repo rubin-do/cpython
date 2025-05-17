@@ -10,7 +10,7 @@
 #define FILENAME "/tmp/pipe1"
 
 void
-_fetcher_routine(void*)
+_supervisor_routine(void* arg)
 {
   FILE *fp;
   fp = fopen(FILENAME, "r");
@@ -36,23 +36,28 @@ _fetcher_routine(void*)
         continue;
       }
 
-      printf("Read reward: %f\n", value);
+      fprintf(stderr, "Read reward: %f\n", value);
+	  // TODO: pass reward to model
 	}
 
     if (feof(fp)) {
-      printf("End of FIFO reached.\n");
-	  fflush(stdout);
+      fprintf(stderr, "End of FIFO reached.\n");
+	  fflush(stderr);
     } else if (ferror(fp)) {
       perror("Error reading from FIFO");
-	  fflush(stdout);
+	  fflush(stderr);
     }
 
     fclose(fp);
 }
 
 PyStatus
-_PyRewardFetcher_Init(PyInterpreterState *interp)
+_PyGCSupervisor_Init(PyInterpreterState *interp)
 {
-    PyThread_start_new_thread(_fetcher_routine, 0);
+    // Disable auto GC - supervisor will run PyGC_Collect on its own
+    PyGC_Disable();
+
+    // Run supervisor routine in separate thread
+    PyThread_start_new_thread(_supervisor_routine, 0);
     return _PyStatus_OK();
 }
