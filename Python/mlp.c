@@ -1,21 +1,14 @@
 // #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
 
-// TODO: fix input dim
-#define N_INPUTS 64
-#define N_HIDDEN 64
-#define N_OUTPUTS 2
-
-// learning rate
-#define LR 0.01
-
-typedef union {float f; int32_t i;} fandi;
+#include "pycore_mlp.h"
 
 int32_t ftoi(float f){fandi f2i; f2i.f = f; return f2i.i;}
 float itof(int32_t i){fandi i2f; i2f.i = i; return i2f.f;}
-// branchless ReLU: https://gist.github.com/ToruNiina/f7a3ba69585cf3bfd869e302357c11a8
+
 float ReLU(float x)
 {
     // s, e, f mean `sign bit`, `exponent`, and `fractional`, respectively.
@@ -34,28 +27,14 @@ float ReLU(float x)
     return itof(xi & ~(xi >> 31));
 }
 
-float ReLU_derivative(float x) {
+float ReLU_derivative(float x)
+{
     if (x >= 0) {
         return 1.0;
     } else {
         return 0.0;
     }
 }
-
-
-typedef struct {
-  int input_size;
-  int output_size;
-  float** weights; // input_size x output_size
-  float *biases; // output_size
-} LinearLayer;
-
-typedef struct {
-  LinearLayer input_layer;
-  LinearLayer hidden_layer;
-  LinearLayer output_layer;
-} MLP;
-
 
 void init_layer(LinearLayer *layer, int input_size, int output_size) {
     layer->input_size = input_size;

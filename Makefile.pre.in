@@ -467,6 +467,7 @@ PYTHON_OBJS=	\
 		Python/legacy_tracing.o \
 		Python/lock.o \
 		Python/marshal.o \
+		Python/memory_state.o \
 		Python/modsupport.o \
 		Python/mlp.o \
 		Python/mysnprintf.o \
@@ -1340,6 +1341,7 @@ PYTHON_HEADERS= \
 		$(srcdir)/Include/internal/pycore_lock.h \
 		$(srcdir)/Include/internal/pycore_long.h \
 		$(srcdir)/Include/internal/pycore_memoryobject.h \
+		$(srcdir)/Include/internal/pycore_memory_state.h \
 		$(srcdir)/Include/internal/pycore_mimalloc.h \
 		$(srcdir)/Include/internal/pycore_mlp.h \
 		$(srcdir)/Include/internal/pycore_modsupport.h \

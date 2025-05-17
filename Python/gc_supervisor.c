@@ -5,6 +5,8 @@
 #include <stdio.h>
 
 #include "pycore_interp.h"        // PyInterpreterState.gc
+#include "pycore_memory_state.h"
+#include "pycore_mlp.h"
 #include "pycore_initconfig.h"    // _PyStatus_OK()
 
 #define FILENAME "/tmp/pipe1"
@@ -37,6 +39,8 @@ _supervisor_routine(void* arg)
       }
 
       fprintf(stderr, "Read reward: %f\n", value);
+
+	  float* val = _PyMemoryState_GetEmbeddings();
 	  // TODO: pass reward to model
 	}
 

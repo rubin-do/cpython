@@ -8,6 +8,37 @@ extern "C" {
 #  error "this header requires Py_BUILD_CORE define"
 #endif
 
+// TODO: fix input dim
+#define N_INPUTS 64
+#define N_HIDDEN 64
+#define N_OUTPUTS 2
+
+// learning rate
+#define LR 0.01
+
+typedef union {float f; int32_t i;} fandi;
+
+int32_t ftoi(float f);
+float itof(int32_t i);
+
+// branchless ReLU: https://gist.github.com/ToruNiina/f7a3ba69585cf3bfd869e302357c11a8
+float ReLU(float x);
+
+float ReLU_derivative(float x);
+
+typedef struct {
+  int input_size;
+  int output_size;
+  float** weights; // input_size x output_size
+  float *biases; // output_size
+} LinearLayer;
+
+typedef struct {
+  LinearLayer input_layer;
+  LinearLayer hidden_layer;
+  LinearLayer output_layer;
+} MLP;
+
 void init_layer(LinearLayer* layer, int input_size, int output_size);
 void free_layer(LinearLayer* layer);
 
