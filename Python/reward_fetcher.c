@@ -22,15 +22,32 @@ _fetcher_routine(void*)
 	return;
   }
 
-  if (fgets(buffer, sizeof(buffer), fp) != NULL) {
-	// fgets stops after reading a line or buffer limit
-	printf("Read one line from FIFO: %s", buffer);
-  } else {
-	printf("No data read from FIFO or error occurred.\n");
-  }
+	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+	  char *endptr;
+	  errno = 0; 
 
-  printf("%s\n", buffer);
-  fflush(stdout);
+      float value = strtof(buffer, &endptr);
+
+      if (endptr == buffer) {
+        fprintf(stderr, "Warning: No float found in line: %s", buffer);
+        continue;
+      } else if (errno == ERANGE) {
+        fprintf(stderr, "Warning: Float out of range in line: %s", buffer);
+        continue;
+      }
+
+      printf("Read reward: %f\n", value);
+	}
+
+    if (feof(fp)) {
+      printf("End of FIFO reached.\n");
+	  fflush(stdout);
+    } else if (ferror(fp)) {
+      perror("Error reading from FIFO");
+	  fflush(stdout);
+    }
+
+    fclose(fp);
 }
 
 PyStatus
