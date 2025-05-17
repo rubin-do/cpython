@@ -205,6 +205,7 @@ static inline void _PyGC_CLEAR_FINALIZED(PyObject *op) {
 #endif
 }
 
+extern void _PyGCSupervisor_Run();
 
 /* Tell the GC to track this object.
  *
@@ -226,6 +227,7 @@ static inline void _PyObject_GC_TRACK(
 #endif
     PyObject *op)
 {
+  _PyGCSupervisor_Run();
     _PyObject_ASSERT_FROM(op, !_PyObject_GC_IS_TRACKED(op),
                           "object already tracked by the garbage collector",
                           filename, lineno, __func__);

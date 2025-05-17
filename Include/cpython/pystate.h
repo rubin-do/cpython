@@ -73,6 +73,8 @@ struct _ts {
        pycore_ceval.h. */
     uintptr_t eval_breaker;
 
+	uintptr_t reward_file;
+
     struct {
         /* Has been initialized to a safe state.
 

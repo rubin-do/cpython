@@ -887,7 +887,7 @@ pycore_interp_init(PyThreadState *tstate)
     }
 
     // The GCSupervisor must be initialized after GC
-    status = _PyGCSupervisor_Init(interp);
+    status = _PyGCSupervisor_Init(tstate);
     if (_PyStatus_EXCEPTION(status)) {
         return status;
     }
