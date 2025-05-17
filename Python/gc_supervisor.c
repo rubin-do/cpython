@@ -53,6 +53,8 @@ _PyGCSupervisor_Run()
 
 	  // TODO: sample action based on qvalue
 
+	  free(embeds);
+
 	  // TODO: replay buffer
 
 	  if (value > 1) {
