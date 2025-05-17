@@ -63,18 +63,19 @@ _PyGCSupervisor_Run()
 	  DuelingNetwork* net = (DuelingNetwork*)tstate->dueling_nn;
 
 	  // pass embeds to model
-	  dueling_forward(net, state, qvalues);
+	  dueling_forward(net, state, qvalues, 0);
 
-	  if (sample_action(qvalues, EPS)) {
+	  int action = sample_action(qvalues, EPS);
+	  if (action) {
 		PyGC_Collect();
 	  }
 
-	  float* state_final = _PyMemoryState_GetEmbeddings();
+	  float* next_state = _PyMemoryState_GetEmbeddings();
 
-	  // TODO: compute loss
+	  compute_td_loss(state, action, reward, next_state, net, net, 0.99f);
 
 	  free(state);
-	  free(state_final);
+	  free(next_state);
 
 	  fprintf(stderr, "Qvalues: %f %f", qvalues[0], qvalues[1]);
 	  fflush(stderr);

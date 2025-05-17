@@ -52,7 +52,6 @@ void backward(MLP *mlp,
 			  float delta_output[]);
 
 void update(LinearLayer* layer, float inputs[], float deltas[]);
-
 #ifdef __cplusplus
 }
 #endif
