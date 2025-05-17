@@ -8,11 +8,6 @@ extern "C" {
 #  error "this header requires Py_BUILD_CORE define"
 #endif
 
-// TODO: fix input dim
-#define N_INPUTS 64
-#define N_HIDDEN 64
-#define N_OUTPUTS 2
-
 // learning rate
 #define LR 0.01
 
@@ -42,7 +37,7 @@ typedef struct {
 void init_layer(LinearLayer* layer, int input_size, int output_size);
 void free_layer(LinearLayer* layer);
 
-void init_mlp(MLP *mlp);
+void init_mlp(MLP *mlp, int inp_size, int hidden_size, int output_size);
 void free_mlp(MLP *mlp);
 
 void forward(LinearLayer* layer, float inputs[], float outputs[]);

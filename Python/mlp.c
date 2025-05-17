@@ -63,11 +63,11 @@ void free_layer(LinearLayer *layer) {
     free(layer->biases);
 }
 
-void init_mlp(MLP *mlp) {
+void init_mlp(MLP *mlp, int inp_size, int hidden_size, int out_size) {
   srand(time(NULL));
-  init_layer(&mlp->input_layer, N_INPUTS, N_HIDDEN);
-  init_layer(&mlp->hidden_layer, N_HIDDEN, N_HIDDEN);
-  init_layer(&mlp->output_layer, N_HIDDEN, N_OUTPUTS);
+  init_layer(&mlp->input_layer, inp_size, hidden_size);
+  init_layer(&mlp->hidden_layer, hidden_size, hidden_size);
+  init_layer(&mlp->output_layer, hidden_size, out_size);
 }
 
 void free_mlp(MLP *mlp) {
