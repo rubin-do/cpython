@@ -6,7 +6,7 @@
 // TODO: fix input dim
 #define N_INPUTS 64
 #define N_HIDDEN 64
-#define N_OUTPUTS 2;
+#define N_OUTPUTS 2
 
 // learning rate
 #define LR 0.01
@@ -56,25 +56,6 @@ typedef struct {
   LinearLayer output_layer;
 } MLP;
 
-// TODO: move declarations to Include/internal 
-void init_layer(LinearLayer* layer, int input_size, int output_size);
-void free_layer(LinearLayer* layer);
-
-void init_mlp(MLP *mlp);
-void free_mlp(MLP *mlp);
-
-void forward(LinearLayer* layer, float inputs[], float outputs[]);
-void backward(MLP *mlp,
-              float inputs[],
-              float input_outputs[],
-              float hidden_outputs[],
-              float output_outputs[],
-			  float expected_outputs[],
-			  float delta_input[],
-			  float delta_hidden[],
-			  float delta_output[]);
-
-void update(LinearLayer* layer, float inputs[], float deltas[]);
 
 void init_layer(LinearLayer *layer, int input_size, int output_size) {
     layer->input_size = input_size;
@@ -132,26 +113,26 @@ void backward(MLP *mlp,
               float input_outputs[],
               float hidden_outputs[],
               float output_outputs[],
-			  float expected_outputs[],
-			  float delta_input[],
-			  float delta_hidden[],
-			  float delta_output[]) {
-    for (int i = 0; i < nn->output_layer.output_size; i++) {
-        delta_output[i] = errors[i] * sigmoid_derivative(output_outputs[i]);
+			  float errors[],
+			  float* delta_input,
+			  float* delta_hidden,
+			  float* delta_output) {
+    for (int i = 0; i < mlp->output_layer.output_size; i++) {
+        delta_output[i] = errors[i] * ReLU_derivative(output_outputs[i]);
     }
 
-    for (int i = 0; i < nn->hidden_layer.output_size; i++) {
+    for (int i = 0; i < mlp->hidden_layer.output_size; i++) {
         float error = 0.0;
-        for (int j = 0; j < nn->output_layer.output_size; j++) {
-            error += delta_output[j] * nn->output_layer.weights[i][j];
+        for (int j = 0; j < mlp->output_layer.output_size; j++) {
+            error += delta_output[j] * mlp->output_layer.weights[i][j];
         }
-        delta_hidden[i] = error * sigmoid_derivative(hidden_outputs[i]);
+        delta_hidden[i] = error * ReLU_derivative(hidden_outputs[i]);
     }
 
-    for (int i = 0; i < nn->input_layer.output_size; i++) {
+    for (int i = 0; i < mlp->input_layer.output_size; i++) {
         float error = 0.0;
-        for (int j = 0; j < nn->hidden_layer.output_size; j++) {
-            error += delta_hidden[j] * nn->hidden_layer.weights[i][j];
+        for (int j = 0; j < mlp->hidden_layer.output_size; j++) {
+            error += delta_hidden[j] * mlp->hidden_layer.weights[i][j];
         }
         delta_input[i] = error * ReLU_derivative(input_outputs[i]);
     }
