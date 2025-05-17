@@ -18,6 +18,7 @@ typedef struct {
 void init_dueling_network(DuelingNetwork* net, int n_actions, int inp_size, int hidden_size);
 void dueling_forward(DuelingNetwork* net, float* x, float* q_out);
 void free_dueling_network(DuelingNetwork* net);
+int sample_action(float* qvalues, float epsilon);
 
 #ifdef __cplusplus
 }

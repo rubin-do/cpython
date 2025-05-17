@@ -54,6 +54,14 @@ void dueling_forward(DuelingNetwork* net, float* x, float* q_out) {
     free(A);
 }
 
+int sample_action(float* qvalues, float epsilon) {
+  float x = (float)rand()/(float)(RAND_MAX);
+  if (x < epsilon) {
+	return rand()%2;
+  }
+  return qvalues[1] > qvalues[0] ? 1 : 0;
+}
+
 void free_dueling_network(DuelingNetwork* net) {
     free_mlp(&net->V_mlp);
     free_mlp(&net->A_mlp);

@@ -18,6 +18,8 @@
 #define N_HIDDEN 64
 #define N_OUTPUTS 2
 
+#define EPS 0.07
+
 
 void
 _PyGCSupervisor_Run()
@@ -63,9 +65,7 @@ _PyGCSupervisor_Run()
 	  // pass embeds to model
 	  dueling_forward(net, state, qvalues);
 
-	  // TODO: sample action based on qvalue
-
-	  if (qvalues[1] > qvalues[0]) {
+	  if (sample_action(qvalues, EPS)) {
 		PyGC_Collect();
 	  }
 
