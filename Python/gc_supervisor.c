@@ -19,10 +19,10 @@ _PyGCSupervisor_Run()
   // Get fp from thread state
   PyThreadState *tstate = _PyThreadState_GET();
 
-//  /* Only execute pending calls on the main thread. */
-//  if (!_Py_IsMainThread() || !_Py_IsMainInterpreter(tstate->interp)) {
-//	return;
-//  }
+  /* Only execute pending calls on the main thread. */
+  if (!_Py_IsMainThread() || !_Py_IsMainInterpreter(tstate->interp)) {
+	return;
+  }
 
   FILE* fp = (FILE*)tstate->reward_file;
   if (fp == NULL) {
@@ -48,7 +48,7 @@ _PyGCSupervisor_Run()
       fprintf(stderr, "Read reward: %f\n", value);
 	  fflush(stderr);
 
-	  //float* val = _PyMemoryState_GetEmbeddings();
+	  float* val = _PyMemoryState_GetEmbeddings();
 	  // TODO: pass reward to model
 	}
 }
