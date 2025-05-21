@@ -24,6 +24,7 @@ typedef struct {
 } DuelingNetwork;
 
 void init_dueling_network(DuelingNetwork* net, int n_actions, int inp_size, int hidden_size);
+void copy_dueling_network(DuelingNetwork* dst, DuelingNetwork* src);
 void dueling_forward(DuelingNetwork* net, float* x, float* q_out, int train);
 void free_dueling_network(DuelingNetwork* net);
 int sample_action(float* qvalues, float epsilon);

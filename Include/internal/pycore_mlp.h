@@ -35,9 +35,11 @@ typedef struct {
 } MLP;
 
 void init_layer(LinearLayer* layer, int input_size, int output_size);
+void copy_layer(LinearLayer* dst, LinearLayer* src);
 void free_layer(LinearLayer* layer);
 
 void init_mlp(MLP *mlp, int inp_size, int hidden_size, int output_size);
+void copy_mlp(MLP *dst, MLP *src);
 void free_mlp(MLP *mlp);
 
 void forward(LinearLayer* layer, float inputs[], float outputs[]);

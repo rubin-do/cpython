@@ -55,6 +55,16 @@ void init_layer(LinearLayer *layer, int input_size, int output_size) {
         layer->biases[i] = ((float)rand() / RAND_MAX) - 0.5;
 }
 
+// copy layers with same dimensions
+void copy_layer(LinearLayer *dst, LinearLayer *src) {
+    for (int i = 0; i < dst->input_size; i++)
+        for (int j = 0; j < dst->output_size; j++)
+          dst->weights[i][j] = src->weights[i][j];
+
+    for (int i = 0; i < dst->output_size; i++)
+      dst->biases[i] = src->biases[i];
+}
+
 void free_layer(LinearLayer *layer) {
     for (int i = 0; i < layer->input_size; i++) {
         free(layer->weights[i]);
@@ -68,6 +78,12 @@ void init_mlp(MLP *mlp, int inp_size, int hidden_size, int out_size) {
   init_layer(&mlp->input_layer, inp_size, hidden_size);
   init_layer(&mlp->hidden_layer, hidden_size, hidden_size);
   init_layer(&mlp->output_layer, hidden_size, out_size);
+}
+
+void copy_mlp(MLP *dst, MLP *src) {
+  copy_layer(&dst->input_layer, &src->input_layer);
+  copy_layer(&dst->hidden_layer, &src->hidden_layer);
+  copy_layer(&dst->output_layer, &src->output_layer);
 }
 
 void free_mlp(MLP *mlp) {

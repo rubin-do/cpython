@@ -75,6 +75,7 @@ struct _ts {
 
 	uintptr_t reward_file;
 	uintptr_t dueling_nn;
+	uintptr_t dueling_target_nn;
 
     struct {
         /* Has been initialized to a safe state.

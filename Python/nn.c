@@ -14,6 +14,11 @@ void init_dueling_network(DuelingNetwork* net, int n_actions, int inp_size, int 
     init_mlp(&net->A_mlp, inp_size, hidden_size, n_actions);
 }
 
+void copy_dueling_network(DuelingNetwork *dst, DuelingNetwork *src) {
+  copy_mlp(&dst->V_mlp, &src->V_mlp);
+  copy_mlp(&dst->A_mlp, &src->A_mlp);
+}
+
 void dueling_forward(DuelingNetwork* net, float* x, float* q_out, int train) {
     float* V = (float*)malloc(sizeof(float));
     float* A = (float*)malloc(net->n_actions * sizeof(float));

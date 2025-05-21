@@ -18,8 +18,11 @@
 #define N_HIDDEN 64
 #define N_OUTPUTS 2
 
+#define COPY_MODEL_ITERATIONS 20
+
 #define EPS 0.07
 
+int infer_iter = 0;
 
 void
 _PyGCSupervisor_Run()
@@ -72,13 +75,20 @@ _PyGCSupervisor_Run()
 
 	  float* next_state = _PyMemoryState_GetEmbeddings();
 
-	  compute_td_loss(state, action, reward, next_state, net, net, 0.99f);
+	  DuelingNetwork* target_net = (DuelingNetwork*)tstate->dueling_target_nn;
+	  compute_td_loss(state, action, reward, next_state, net, target_net, 0.99f);
 
+	  if (!(infer_iter % COPY_MODEL_ITERATIONS)) {
+		infer_iter = 0;
+		copy_dueling_network(target_net, net);
+	  }
+	
 	  free(state);
 	  free(next_state);
 
 	  fprintf(stderr, "Qvalues: %f %f", qvalues[0], qvalues[1]);
 	  fflush(stderr);
+	  infer_iter++;
 	  // TODO: replay buffer
 	}
 }
@@ -105,10 +115,14 @@ _PyGCSupervisor_Init(PyThreadState *tstate)
 
     DuelingNetwork *net = malloc(sizeof(DuelingNetwork));
     init_dueling_network(net, N_OUTPUTS, N_INPUTS, N_HIDDEN);
+
+    DuelingNetwork *target_net = malloc(sizeof(DuelingNetwork));
+    init_dueling_network(target_net, N_OUTPUTS, N_INPUTS, N_HIDDEN);
   
     // init thread state
     tstate->reward_file = (uintptr_t)fp;
     tstate->dueling_nn = (uintptr_t)net;
+    tstate->dueling_target_nn = (uintptr_t)target_net;
 
     return _PyStatus_OK();
 }
