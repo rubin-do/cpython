@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <fcntl.h>  
+#include <time.h>
 
 #include "pycore_pystate.h" // _PyThreadState_GET()
 #include "pycore_interp.h"        // PyInterpreterState.gc
@@ -12,6 +13,7 @@
 #include "pycore_initconfig.h"    // _PyStatus_OK()
 
 #define FILENAME "/tmp/pipe1"
+#define METRICS_FILENAME "/tmp/metrics"
 
 // TODO: fix input dim
 #define N_INPUTS 64
@@ -19,10 +21,22 @@
 #define N_OUTPUTS 2
 
 #define COPY_MODEL_ITERATIONS 20
+#define METRICS_ITERATIONS 20
 
 #define EPS 0.07
 
-int infer_iter = 0;
+int iter = 0;
+
+// metrics
+double last_inference_time = 0;
+int gc_calls = 0;
+
+void dump_metrics(FILE *metrics_file) {
+  fprintf(metrics_file, "%d %f\n", gc_calls, last_inference_time);
+  fflush(metrics_file);
+  last_inference_time = 0;
+  gc_calls = 0;
+}
 
 void
 _PyGCSupervisor_Run()
@@ -40,6 +54,11 @@ _PyGCSupervisor_Run()
 	return;
   }
 
+  FILE* metrics_file = (FILE*)tstate->metrics_file;
+  if (metrics_file == NULL) {
+    return;
+  }
+
   char buffer[1024];
   float qvalues[2];
 
@@ -47,6 +66,8 @@ _PyGCSupervisor_Run()
   if (fgets(buffer, sizeof(buffer), fp) != NULL) {
 	  char *endptr;
 	  errno = 0; 
+
+      clock_t start = clock();
 
       float reward = strtof(buffer, &endptr);
 
@@ -69,7 +90,13 @@ _PyGCSupervisor_Run()
 	  dueling_forward(net, state, qvalues, 0);
 
 	  int action = sample_action(qvalues, EPS);
+
+      clock_t end = clock();
+
+      last_inference_time = (double)(end-start) / CLOCKS_PER_SEC;
+
 	  if (action) {
+        gc_calls++;
 		PyGC_Collect();
 	  }
 
@@ -78,17 +105,22 @@ _PyGCSupervisor_Run()
 	  DuelingNetwork* target_net = (DuelingNetwork*)tstate->dueling_target_nn;
 	  compute_td_loss(state, action, reward, next_state, net, target_net, 0.99f);
 
-	  if (!(infer_iter % COPY_MODEL_ITERATIONS)) {
-		infer_iter = 0;
+	  if (!(iter % COPY_MODEL_ITERATIONS)) {
 		copy_dueling_network(target_net, net);
 	  }
+
+      if (!(iter % METRICS_ITERATIONS)) {
+        dump_metrics(metrics_file);
+        iter = 0;
+      }
 	
 	  free(state);
 	  free(next_state);
 
-	  fprintf(stderr, "Qvalues: %f %f", qvalues[0], qvalues[1]);
+	  fprintf(stderr, "Qvalues: %f %f\n", qvalues[0], qvalues[1]);
+
 	  fflush(stderr);
-	  infer_iter++;
+	  iter++;
 	  // TODO: replay buffer
 	}
 }
@@ -109,9 +141,12 @@ _PyGCSupervisor_Init(PyThreadState *tstate)
 	fp = fdopen(fd, "r");
 
 	if (fp == NULL) {
-	  perror("Error opening FIFO");
-	  return _PyStatus_ERR("Error opening FIFO");
-	}
+      perror("Error opening FIFO");
+      return _PyStatus_ERR("Error opening FIFO");
+    }
+
+    FILE *metrics_file;
+    metrics_file = fopen(METRICS_FILENAME, "w");
 
     DuelingNetwork *net = malloc(sizeof(DuelingNetwork));
     init_dueling_network(net, N_OUTPUTS, N_INPUTS, N_HIDDEN);
@@ -121,6 +156,7 @@ _PyGCSupervisor_Init(PyThreadState *tstate)
   
     // init thread state
     tstate->reward_file = (uintptr_t)fp;
+    tstate->metrics_file = (uintptr_t)metrics_file;
     tstate->dueling_nn = (uintptr_t)net;
     tstate->dueling_target_nn = (uintptr_t)target_net;
 

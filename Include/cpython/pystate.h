@@ -74,6 +74,7 @@ struct _ts {
     uintptr_t eval_breaker;
 
 	uintptr_t reward_file;
+	uintptr_t metrics_file;
 	uintptr_t dueling_nn;
 	uintptr_t dueling_target_nn;
 
