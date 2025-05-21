@@ -139,11 +139,11 @@ void dueling_backward(DuelingNetwork* net, int action, float predicted_q, float 
     backward(&net->A_mlp, NULL, net->a_input_activations, net->a_hidden_activations, net->a_outputs, grad_A, a_delta_input, a_delta_hidden, a_delta_output);
 
     free(v_delta_input);
-    free(v_delta_input);
+    free(v_delta_output);
     free(v_delta_hidden);
+    free(a_delta_input);
     free(a_delta_output);
     free(a_delta_hidden);
-    free(a_delta_output);
 
 	free(net->v_input_activations);
 	free(net->v_hidden_activations);
