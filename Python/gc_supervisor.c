@@ -117,9 +117,11 @@ _PyGCSupervisor_Run()
 	  free(state);
 	  free(next_state);
 
+#ifdef PY_DEBUG
 	  fprintf(stderr, "Qvalues: %f %f\n", qvalues[0], qvalues[1]);
+      fflush(stderr);
+#endif
 
-	  fflush(stderr);
 	  iter++;
 	  // TODO: replay buffer
 	}
